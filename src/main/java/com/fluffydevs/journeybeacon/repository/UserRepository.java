@@ -11,6 +11,9 @@ public interface UserRepository extends CrudRepository<Users,String> {
     @Query("SELECT * FROM USERS WHERE email = :email")
     List<Users> findByEmail(String email);
 
+    @Query("SELECT * FROM USERS WHERE user_id = :userId")
+    List<Users> findByUserId(String userId);
+
     @Query("SELECT * FROM USERS WHERE email = :email and idToken = :idToken")
     List<Users> findByEmailAndToken(String email, String idToken);
 }

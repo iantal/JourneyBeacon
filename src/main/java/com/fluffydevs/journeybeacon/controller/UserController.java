@@ -1,7 +1,11 @@
 package com.fluffydevs.journeybeacon.controller;
 
+import com.fluffydevs.journeybeacon.model.Payments;
 import com.fluffydevs.journeybeacon.model.Users;
+import com.fluffydevs.journeybeacon.model.dto.PaymentDetails;
 import com.fluffydevs.journeybeacon.model.dto.UserDetails;
+import com.fluffydevs.journeybeacon.model.dto.UserInfo;
+import com.fluffydevs.journeybeacon.repository.PaymentRepository;
 import com.fluffydevs.journeybeacon.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +20,11 @@ import java.util.List;
 public class UserController {
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
     private final UserRepository users;
+    private final PaymentRepository payments;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, PaymentRepository payments) {
         this.users = userRepository;
+        this.payments = payments;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes="application/json")
@@ -37,14 +43,30 @@ public class UserController {
     }
 
     @GetMapping("/users")
-    public ResponseEntity<List<UserDetails>> getUsers() {
+    public ResponseEntity<List<UserInfo>> getUsers() {
         Iterable<Users> all = users.findAll();
 
-        List<UserDetails> details = new ArrayList<>();
+        List<UserInfo> details = new ArrayList<>();
         for (Users users : all) {
-            details.add(new UserDetails(users.getUserId()));
+            details.add(new UserInfo(users.getDisplayName(), users.getUserId()));
         }
 
         return ResponseEntity.ok(details);
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserDetails> getPaymentsForUser(@PathVariable String id) {
+        List<Users> userList = users.findByUserId(id);
+        if (userList.size() != 1) {
+            LOG.warn("Duplicate users by id {}", id);
+            return ResponseEntity.internalServerError().build();
+        }
+        Users user = userList.get(0);
+
+        List<Payments> paymentsList = payments.findByUserId(user.getUserId());
+        List<PaymentDetails> paymentDetailsList = new ArrayList<>();
+        paymentsList.forEach(i -> paymentDetailsList.add(new PaymentDetails(i.getTimestmp(), i.getAmount(),i.getRoute())));
+
+        return ResponseEntity.ok(new UserDetails(user.getDisplayName(), paymentDetailsList));
     }
 }

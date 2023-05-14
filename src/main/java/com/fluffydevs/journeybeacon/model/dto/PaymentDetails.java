@@ -3,11 +3,10 @@ package com.fluffydevs.journeybeacon.model.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
-public class UserDetails {
-    private String displayName;
-    private List<PaymentDetails> payments;
+public class PaymentDetails {
+    private String timestmp;
+    private String amount;
+    private String route;
 }
