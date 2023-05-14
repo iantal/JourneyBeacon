@@ -1,7 +1,6 @@
 package com.fluffydevs.journeybeacon.controller;
 
-import com.fluffydevs.journeybeacon.model.Payments;
-import com.fluffydevs.journeybeacon.model.Users;
+import com.fluffydevs.journeybeacon.model.*;
 import com.fluffydevs.journeybeacon.model.dto.PaymentDetails;
 import com.fluffydevs.journeybeacon.model.dto.UserDetails;
 import com.fluffydevs.journeybeacon.model.dto.UserInfo;
@@ -28,18 +27,15 @@ public class UserController {
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes="application/json")
-    public ResponseEntity<String> login(@RequestBody Users users) {
+    public ResponseEntity<Response> login(@RequestBody Users users) {
         if (users == null) {
-            return ResponseEntity.badRequest().body("User is null");
-        }
-        if (!users.isComplete()) {
-            return ResponseEntity.badRequest().body("User data is incomplete");
+            return ResponseEntity.badRequest().body(new ResponseError());
         }
         List<Users> usersList = this.users.findByEmail(users.getEmail());
         if (usersList.size() == 0) {
             this.users.save(users);
         }
-        return ResponseEntity.ok("User login successful");
+        return ResponseEntity.ok(new ResponseOk());
     }
 
     @GetMapping("/users")

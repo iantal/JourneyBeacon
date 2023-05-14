@@ -1,6 +1,8 @@
 package com.fluffydevs.journeybeacon.controller;
 
 import com.fluffydevs.journeybeacon.model.Payments;
+import com.fluffydevs.journeybeacon.model.Response;
+import com.fluffydevs.journeybeacon.model.ResponseOk;
 import com.fluffydevs.journeybeacon.repository.PaymentRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,9 @@ public class PaymentController {
         this.payments = paymentRepository;
     }
     @PostMapping("/payments")
-    public ResponseEntity<String> pay(@RequestBody Payments payments) {
+    public ResponseEntity<Response> pay(@RequestBody Payments payments) {
         this.payments.save(payments);
-        return ResponseEntity.ok("ok");
+        return ResponseEntity.ok(new ResponseOk());
     }
 
     @GetMapping("/payments")
